@@ -74,4 +74,7 @@ tester({
         title: 'bar',
         toTitle: (state) => state.opts.title,
     },
+    babelOptions: {
+      plugins: ["@babel/plugin-syntax-jsx"],
+    }
 });

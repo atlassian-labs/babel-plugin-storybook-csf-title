@@ -49,7 +49,6 @@ const plugin = (babel) => {
 
     return ({
         name: 'Storybook CSF title generation',
-        inherits: require("@babel/plugin-syntax-jsx").default,
         visitor: {
             ExportDefaultDeclaration: (path, state) => {
                 if (path.node.declaration.type === 'ObjectExpression') {
