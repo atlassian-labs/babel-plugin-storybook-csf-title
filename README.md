@@ -106,8 +106,6 @@ Note that the plugin really only makes sense for story files. You will want to m
 
 The plugin takes a single `toTitle` option. `toTitle` is a function that, for every story file that is transformed, recieves Babel's `state` object, and must return the story file's title as a string. Most `toTitle` implementations will make decisions based on `state.filename`. 
 
-To configure the respective `toTitle` implementation, you may want to provide additional options to the plugin. These options are then available to the `toTitle` implementation via the `state.opts` object.
-
 ## Generating meaningful story names
 
 In most cases, the story name will be generated based on the story file's file name. Here's a possible implementation of `toTitle` for a `yarn workspaces`-style monorepo setup:
