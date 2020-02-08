@@ -1,6 +1,6 @@
 # babel-plugin-storybook-csf-title
 
-A Babel plugin to generate titles for [Storybook CSF](https://storybook.js.org/docs/formats/component-story-format/) stories at _compile time_, typically based on the story file's file name.
+A [Babel plugin](https://babeljs.io/docs/en/plugins/) to generate titles for [Storybook CSF](https://storybook.js.org/docs/formats/component-story-format/) stories at _compile time_, typically based on the story file's file name.
 
 ## Usage
 
@@ -37,7 +37,7 @@ export default {
 
 #### 2️⃣ The file provides a non-object as its default export
 
-In this scenario, the plugin assumes that the default export is a component, and moves this default export into the `component` property of a default export object as expected by Storybook.
+In this scenario, the plugin assumes that the default export is a component, and moves this component into the `component` property of a default export object as expected by Storybook.
 
 E.g., 
 
@@ -83,6 +83,24 @@ export const Example = () => <Component />;
 
 export default { title: 'foo' };
 ```
+
+## Installation
+
+Install the plugin e.g. via `yarn`;
+
+```
+yarn add --dev babel-plugin-storybook-csf-title
+```
+
+In your Babel configuration, add `babel-plugin-storybook-csf-title` as a plugin:
+
+```js
+plugins: [
+    ['babel-plugin-storybook-csf-title', { toTitle: require('./your-to-title-function') }],
+]
+```
+
+Note that the plugin really only makes sense for story files. You will want to make sure it is only applied to exactly these files.
 
 ## Options
 
