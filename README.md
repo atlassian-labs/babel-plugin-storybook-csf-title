@@ -1,5 +1,7 @@
 # babel-plugin-storybook-csf-title
 
+[![Atlassian license](https://img.shields.io/badge/license-Apache%202.0-blue.svg?style=flat-square)](LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](CONTRIBUTING.md)
+
 A [Babel plugin](https://babeljs.io/docs/en/plugins/) to generate titles for [Storybook CSF](https://storybook.js.org/docs/formats/component-story-format/) stories at _compile time_, typically based on the story file's file name.
 
 ## Usage
@@ -146,3 +148,17 @@ module.exports = (state) => {
     return storybookPath.join('/');
 }
 ```
+
+## Contributions
+
+Contributions to `babel-plugin-storybook-csf-title` are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details. 
+
+
+## License
+
+Copyright (c) 2020 Atlassian and others.
+Apache 2.0 licensed, see [LICENSE](LICENSE) file.
+
+<br/> 
+
+[![With ❤️ from Atlassian](https://raw.githubusercontent.com/atlassian-internal/oss-assets/master/banner-with-thanks.png)](https://www.atlassian.com)
