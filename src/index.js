@@ -1,15 +1,11 @@
 const TITLE_KEY = 'title';
-const COMPONENT_KEY = 'component';
 
-const fixObjectDefaultExport = (path, state, t) => {
+const fixObjectDefaultExport = (path, t, title) => {
     if (path.node.declaration.properties) {
-
         const titleProperty = path.node.declaration.properties.find(node =>
             node.key && node.key.name === TITLE_KEY
         );
-
         if (!titleProperty) {
-            const title = state.opts.toTitle(state);
             path.get('declaration').pushContainer(
                 'properties', 
                 t.objectProperty(t.identifier(TITLE_KEY), t.stringLiteral(title))
@@ -24,18 +20,24 @@ const fixObjectDefaultExport = (path, state, t) => {
     }
 }
 
-const fixNonObjectDefaultExport = (path, state, t) => {
-    const title = state.opts.toTitle(state);
-    path.replaceWith(
-        t.exportDefaultDeclaration(t.objectExpression([
-            t.objectProperty(t.identifier(TITLE_KEY), t.stringLiteral(title)),
-            t.objectProperty(t.identifier(COMPONENT_KEY), path.node.declaration)
-        ]))
+const replaceDefaultExportPathByNamedDefaultExportPath = (defaultExportPath, t, renameDefaultExportsTo) => {
+    defaultExportPath.replaceWith(
+        t.exportNamedDeclaration(
+            t.variableDeclaration(
+                'const',
+                [
+                    t.variableDeclarator(
+                        t.identifier(renameDefaultExportsTo),
+                        defaultExportPath.node.declaration
+                    )
+                ],
+            ),
+            []
+        )
     );
 }
 
-const insertDefaultExport = (programPath, state, t) => {
-    const title = state.opts.toTitle(state);
+const insertDefaultExport = (programPath, t, title) => {
     programPath.pushContainer(
         'body',
         t.exportDefaultDeclaration(t.objectExpression([
@@ -44,28 +46,67 @@ const insertDefaultExport = (programPath, state, t) => {
     );
 }
 
-const plugin = (babel) => {
+const plugin = babel => {
     const { types: t } = babel;
 
     return ({
         name: 'Storybook CSF title generation',
         visitor: {
             ExportDefaultDeclaration: (path, state) => {
-                if (path.node.declaration.type === 'ObjectExpression') {
-                    fixObjectDefaultExport(path, state, t);
-                } else {
-                    fixNonObjectDefaultExport(path, state, t);
+                if (state.handled) {
+                    return;
                 }
-                state.handled = true;
-                path.stop();
+                state.defaultExportPath = path;
+            },
+            ExportNamedDeclaration: (path, state) => {
+                if (state.handled) {
+                    return;
+                }
+                if (
+                    state.opts.renameDefaultExportsTo &&
+                    path.node.declaration && 
+                    path.node.declaration.type === 'VariableDeclaration' && 
+                    path.node.declaration.declarations && 
+                    path.node.declaration.declarations[0] &&
+                    path.node.declaration.declarations[0].type === 'VariableDeclarator' &&
+                    path.node.declaration.declarations[0].id &&
+                    path.node.declaration.declarations[0].id.name === state.opts.renameDefaultExportsTo
+                ) {
+                    state.namedDefaultExportPath = path;
+                }
             },
             Program: {
                 exit: (path, state) => {
                     if (state.handled) {
                         return;
                     }
-                    insertDefaultExport(path, state, t);
-                    path.stop();
+
+                    state.handled = true;
+
+                    const title = state.opts.toTitle(state);
+                    const renameDefaultExportsTo = state.opts.renameDefaultExportsTo;
+                    const programPath = path;
+
+                    if (state.defaultExportPath) {
+                        if (state.defaultExportPath.node.declaration.type === 'ObjectExpression') {
+                            fixObjectDefaultExport(state.defaultExportPath, t, title);
+                        } else {
+                            if (renameDefaultExportsTo) {
+                                if (!state.namedDefaultExportPath) {
+                                    replaceDefaultExportPathByNamedDefaultExportPath(state.defaultExportPath, t, renameDefaultExportsTo);
+                                    insertDefaultExport(programPath, t, title);
+                                } else {
+                                    throw new Error(
+                                        `Default export can't be changed to '${renameDefaultExportsTo}', as a '${renameDefaultExportsTo}' export already exists. Please rename '${renameDefaultExportsTo}'.`
+                                    )
+                                }
+                            } else {
+                                throw new Error(`Non-object default export found. Please change to named export.`)
+                            }
+                        }
+                    } else {
+                        insertDefaultExport(programPath, t, title);
+                    }
                 }
             }
         }
