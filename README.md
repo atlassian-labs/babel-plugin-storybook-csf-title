@@ -10,9 +10,33 @@ The plugin adds a `title` property to all transformed files, based on the result
 
 Assuming `toTitle: () => 'foo'`, there are three general scenarios:
 
-#### 1️⃣ The file provides an object as its default export
+#### 1️⃣ The file does not provide a default export
 
-In this scenario, the plugin adds a `title: foo` property to this default export.
+In this scenario, the plugin creates a default export `{ title: "foo" }`.
+
+E.g., 
+
+```js
+import React from 'react';
+import Component from './index';
+
+export const Example = () => <Component />;
+```
+
+is transformed into
+
+```js
+import React from 'react';
+import Component from './index';
+
+export const Example = () => <Component />;
+
+export default { title: 'foo' };
+```
+
+#### 2️⃣ The file provides an object as its default export
+
+In this scenario, the plugin adds a `title: foo` property to the existing export.
 
 E.g., 
 
@@ -37,11 +61,13 @@ export default {
 };
 ```
 
-#### 2️⃣ The file provides a non-object as its default export
+If the existing export already contains a `title` property, an error is thrown.
 
-In this scenario, the plugin assumes that the default export is a component, and moves this component into the `component` property of a default export object as expected by Storybook.
+#### 3️⃣ The file provides a non-object as its default export
 
-E.g., 
+If the `renameDefaultExportsTo` option is set, the plugin assumes that the default export is a component, and moves this component to a named export of the name `${renameDefaultExportsTo}`. It then creates a default export `{ title: "foo" }`. 
+
+E.g., assuming `renameDefaultExportsTo` is `"Default"`,
 
 ```js
 import React from 'react';
@@ -56,35 +82,14 @@ is transformed into
 import React from 'react';
 import Component from './index';
 
+export const Default = () => <Component />;
+
 export default { 
-    component: () => <Component />,
     title: 'foo'
 };
 ```
 
-#### 3️⃣ The file does not provide any default export
-
-In this scenario, the plugin creates a default export with `title: "foo"`.
-
-E.g., 
-
-```js
-import React from 'react';
-import Component from './index';
-
-export const Example = () => <Component />;
-```
-
-is transformed into
-
-```js
-import React from 'react';
-import Component from './index';
-
-export const Example = () => <Component />;
-
-export default { title: 'foo' };
-```
+If a `${renameDefaultExportsTo}` export already exists, and error is thrown.
 
 ## Installation
 
@@ -106,7 +111,11 @@ Note that the plugin really only makes sense for story files. You will want to m
 
 ## Options
 
-The plugin takes a single `toTitle` option. `toTitle` is a function that, for every story file that is transformed, recieves Babel's `state` object, and must return the story file's title as a string. Most `toTitle` implementations will make decisions based on `state.filename`. 
+The plugin takes two options, `toTitle` (required) and `renameDefaultExportsTo` (optional).
+
+`toTitle` is a function that, for every story file that is transformed, recieves Babel's `state` object, and must return the story file's title as a string. Most `toTitle` implementations will make decisions based on `state.filename`.
+
+`renameDefaultExportsTo` is an optional string value that controls scenario 3 as described above. It is `undefined` by defaut.
 
 ## Generating meaningful story names
 
