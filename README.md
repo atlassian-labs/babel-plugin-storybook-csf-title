@@ -89,7 +89,7 @@ export default {
 };
 ```
 
-If a `${renameDefaultExportsTo}` export already exists, and error is thrown.
+If a `${renameDefaultExportsTo}` export already exists, an error is thrown.
 
 ## Installation
 
@@ -111,11 +111,11 @@ Note that the plugin really only makes sense for story files. You will want to m
 
 ## Options
 
-The plugin takes two options, `toTitle` (required) and `renameDefaultExportsTo` (optional).
+The plugin takes two options, `toTitle` (required) and `renameDefaultExportsTo` (optional):
 
-`toTitle` is a function that, for every story file that is transformed, recieves Babel's `state` object, and must return the story file's title as a string. Most `toTitle` implementations will make decisions based on `state.filename`.
+- `toTitle` is a function that, for every story file that is transformed, recieves Babel's `state` object, and must return the story file's title as a string. Most `toTitle` implementations will make decisions based on `state.filename`.
 
-`renameDefaultExportsTo` is an optional string value that controls scenario 3 as described above. It is `undefined` by defaut.
+- `renameDefaultExportsTo` is an optional string value that controls scenario 3 as described above. It is `undefined` by defaut.
 
 ## Generating meaningful story names
 
