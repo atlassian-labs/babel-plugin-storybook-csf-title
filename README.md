@@ -45,8 +45,10 @@ import React from 'react';
 import Component from './index';
 
 export default { 
-    component: () => <Component />
+    something: 'something'
 };
+
+export const Example = () => <Component />;
 ```
 
 is transformed into
@@ -56,9 +58,11 @@ import React from 'react';
 import Component from './index';
 
 export default { 
-    component: () => <Component />,
     title: 'foo'
+    something: 'something'
 };
+
+export const Example = () => <Component />;
 ```
 
 If the existing export already contains a `title` property, an error is thrown.
@@ -107,7 +111,21 @@ plugins: [
 ]
 ```
 
-Note that the plugin really only makes sense for story files. You will want to make sure it is only applied to exactly these files.
+Note that the plugin really only makes sense for story files. You will want to make sure it is only applied to exactly these files, e.g. like this:
+
+```js
+/* add plugin to babel, however disable it by default */
+plugins: [
+    ['babel-plugin-storybook-csf-title', false], 
+],
+/* enable the plugin for all files that match your story name pattern */
+overrides: [{ 
+    include: /\/stories\.(ts|tsx)$/, 
+    plugins: [
+        ['babel-plugin-storybook-csf-title', { toTitle: require('./your-to-title-function') }]
+    ]
+}]
+```
 
 ## Options
 
