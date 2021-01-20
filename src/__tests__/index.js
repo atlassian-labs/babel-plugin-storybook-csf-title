@@ -111,3 +111,32 @@ tester({
     plugins: ["@babel/plugin-syntax-jsx"],
   }
 });
+
+tester({
+    plugin,
+    tests: [
+        {
+            title: "Non-object default export, with 'renameDefaultExportsTo' set to false",
+            code: outdent`
+            import React from 'react';
+            import { Component } from './index';
+            export default () => <Component />;
+          `,
+            output: outdent`
+            import React from 'react';
+            import { Component } from './index';
+            export default {
+              title: "bar"
+            };
+          `
+        },
+    ],
+    pluginOptions: {
+        title: 'bar',
+        toTitle: (state) => state.opts.title,
+        renameDefaultExportsTo: false,
+    },
+    babelOptions: {
+        plugins: ["@babel/plugin-syntax-jsx"],
+    }
+});

@@ -7,7 +7,7 @@ const fixObjectDefaultExport = (path, t, title) => {
         );
         if (!titleProperty) {
             path.get('declaration').pushContainer(
-                'properties', 
+                'properties',
                 t.objectProperty(t.identifier(TITLE_KEY), t.stringLiteral(title))
             );
         } else {
@@ -21,20 +21,25 @@ const fixObjectDefaultExport = (path, t, title) => {
 }
 
 const replaceDefaultExportPathByNamedDefaultExportPath = (defaultExportPath, t, renameDefaultExportsTo) => {
-    defaultExportPath.replaceWith(
-        t.exportNamedDeclaration(
-            t.variableDeclaration(
-                'const',
-                [
-                    t.variableDeclarator(
-                        t.identifier(renameDefaultExportsTo),
-                        defaultExportPath.node.declaration
-                    )
-                ],
-            ),
-            []
-        )
-    );
+    if(renameDefaultExportsTo) {
+        defaultExportPath.replaceWith(
+            t.exportNamedDeclaration(
+                t.variableDeclaration(
+                    'const',
+                    [
+                        t.variableDeclarator(
+                            t.identifier(renameDefaultExportsTo),
+                            defaultExportPath.node.declaration
+                        )
+                    ],
+                ),
+                []
+            )
+        );
+    }
+    else {
+        defaultExportPath.remove();
+    }
 }
 
 const insertDefaultExport = (programPath, t, title) => {
@@ -64,9 +69,9 @@ const plugin = babel => {
                 }
                 if (
                     state.opts.renameDefaultExportsTo &&
-                    path.node.declaration && 
-                    path.node.declaration.type === 'VariableDeclaration' && 
-                    path.node.declaration.declarations && 
+                    path.node.declaration &&
+                    path.node.declaration.type === 'VariableDeclaration' &&
+                    path.node.declaration.declarations &&
                     path.node.declaration.declarations[0] &&
                     path.node.declaration.declarations[0].type === 'VariableDeclarator' &&
                     path.node.declaration.declarations[0].id &&
@@ -91,7 +96,7 @@ const plugin = babel => {
                         if (state.defaultExportPath.node.declaration.type === 'ObjectExpression') {
                             fixObjectDefaultExport(state.defaultExportPath, t, title);
                         } else {
-                            if (renameDefaultExportsTo) {
+                            if (renameDefaultExportsTo !== void 0) {
                                 if (!state.namedDefaultExportPath) {
                                     replaceDefaultExportPathByNamedDefaultExportPath(state.defaultExportPath, t, renameDefaultExportsTo);
                                     insertDefaultExport(programPath, t, title);
