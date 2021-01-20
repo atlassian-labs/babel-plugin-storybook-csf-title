@@ -95,6 +95,27 @@ export default {
 
 If a `${renameDefaultExportsTo}` export already exists, an error is thrown.
 
+If the `renameDefaultExportsTo` option is set to `false` default export is removed.
+
+E.g., assuming `renameDefaultExportsTo` is `false`,
+```js
+import React from 'react';
+import Component from './index';
+
+export default () => <Component />;
+```
+
+is transformed into
+
+```js
+import React from 'react';
+import Component from './index';
+
+export default { 
+    title: 'foo'
+};
+```
+
 ## Installation
 
 Install the plugin e.g. via `yarn`;
