@@ -129,11 +129,16 @@ overrides: [{
 
 ## Options
 
-The plugin takes two options, `toTitle` (required) and `renameDefaultExportsTo` (optional):
+The plugin takes three options, `toTitle` (required), `ifFound` (optional), and `renameDefaultExportsTo` (optional):
 
 - `toTitle` is a function that, for every story file that is transformed, recieves Babel's `state` object, and must return the story file's title as a string. Most `toTitle` implementations will make decisions based on `state.filename`.
 
-- `renameDefaultExportsTo` is an optional string value that controls scenario 3 as described above. It is `undefined` by defaut.
+- `ifFound` is an optional string value that may either be set to:
+  -  `'skip'` - skips adding a title if it has already been manually specified in the code
+  -  `'overwrite'` - overwrites any title already manually specified in the code
+  -  `undefined` (or any other value) - raise an error if processing a file that already defines a title
+
+- `renameDefaultExportsTo` is an optional string value that controls scenario 3 as described above. It is `undefined` by default.
 
 ## Generating meaningful story names
 
