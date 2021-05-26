@@ -1,12 +1,12 @@
 const TITLE_KEY = 'title';
 
-const fixObjectDefaultExport = (path, t, title, ifFound) => {
+const fixObjectDefaultExport = (path, t, title, ifTitleFound) => {
     if (path.node.declaration.properties) {
         const titleProperty = path.node.declaration.properties.find(node =>
             node.key && node.key.name === TITLE_KEY
         );
         if (titleProperty) {
-            switch (ifFound) {
+            switch (ifTitleFound) {
                 case 'skip':
                     return;
                 case 'overwrite':
@@ -95,7 +95,7 @@ const plugin = babel => {
 
                     if (state.defaultExportPath) {
                         if (state.defaultExportPath.node.declaration.type === 'ObjectExpression') {
-                            fixObjectDefaultExport(state.defaultExportPath, t, title, state.opts.ifFound);
+                            fixObjectDefaultExport(state.defaultExportPath, t, title, state.opts.ifTitleFound);
                         } else {
                             if (renameDefaultExportsTo) {
                                 if (!state.namedDefaultExportPath) {
