@@ -1,20 +1,24 @@
 const TITLE_KEY = 'title';
 
-const fixObjectDefaultExport = (path, t, title) => {
+const fixObjectDefaultExport = (path, t, title, ifTitleFound) => {
     if (path.node.declaration.properties) {
         const titleProperty = path.node.declaration.properties.find(node =>
             node.key && node.key.name === TITLE_KEY
         );
-        if (!titleProperty) {
-            path.get('declaration').pushContainer(
-                'properties', 
-                t.objectProperty(t.identifier(TITLE_KEY), t.stringLiteral(title))
-            );
-        } else {
-            throw new Error(
-                `Default export object has a '${TITLE_KEY}' property; the title should, however, be generated. Please remove '${TITLE_KEY}'.`
-            )
+        if (titleProperty) {
+            switch (ifTitleFound) {
+                case 'skip':
+                    return;
+                default:
+                    throw new Error(
+                        `Default export object has a '${TITLE_KEY}' property; the title should, however, be generated. Please remove '${TITLE_KEY}'.`
+                    );
+            }
         }
+        path.get('declaration').pushContainer(
+            'properties', 
+            t.objectProperty(t.identifier(TITLE_KEY), t.stringLiteral(title))
+        );
     } else {
         throw new Error('Default export object does not have properties.');
     }
@@ -89,7 +93,7 @@ const plugin = babel => {
 
                     if (state.defaultExportPath) {
                         if (state.defaultExportPath.node.declaration.type === 'ObjectExpression') {
-                            fixObjectDefaultExport(state.defaultExportPath, t, title);
+                            fixObjectDefaultExport(state.defaultExportPath, t, title, state.opts.ifTitleFound);
                         } else {
                             if (renameDefaultExportsTo) {
                                 if (!state.namedDefaultExportPath) {

@@ -111,3 +111,36 @@ tester({
     plugins: ["@babel/plugin-syntax-jsx"],
   }
 });
+
+tester({
+  plugin,
+  tests: [
+      {
+          title: "Default export object with title and ifTitleFound: skip",
+          code: outdent`
+            import React from 'react';
+            import { Component } from './index';
+            export default {
+              title: "existing"
+            };
+            export const Default = () => <Component />;
+          `,
+          output: outdent`
+            import React from 'react';
+            import { Component } from './index';
+            export default {
+              title: "existing"
+            };
+            export const Default = () => <Component />;
+          `
+      }
+  ],
+  pluginOptions: {
+    title: 'bar',
+    toTitle: (state) => state.opts.title,
+    ifTitleFound: 'skip'
+  },
+  babelOptions: {
+    plugins: ["@babel/plugin-syntax-jsx"],
+  }
+});
