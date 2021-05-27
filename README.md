@@ -129,7 +129,7 @@ overrides: [{
 
 ## Options
 
-The plugin takes three options, `toTitle` (required), `ifFound` (optional), and `renameDefaultExportsTo` (optional):
+The plugin takes three options, `toTitle` (required), `ifTitleFound` (optional), and `renameDefaultExportsTo` (optional):
 
 - `toTitle` is a function that, for every story file that is transformed, recieves Babel's `state` object, and must return the story file's title as a string. Most `toTitle` implementations will make decisions based on `state.filename`.
 
