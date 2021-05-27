@@ -9,8 +9,6 @@ const fixObjectDefaultExport = (path, t, title, ifTitleFound) => {
             switch (ifTitleFound) {
                 case 'skip':
                     return;
-                case 'overwrite':
-                    break;
                 default:
                     throw new Error(
                         `Default export object has a '${TITLE_KEY}' property; the title should, however, be generated. Please remove '${TITLE_KEY}'.`
