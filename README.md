@@ -120,7 +120,7 @@ plugins: [
 ],
 /* enable the plugin for all files that match your story name pattern */
 overrides: [{ 
-    include: /\/stories\.(ts|tsx)$/, 
+    include: /\.stories\.(ts|tsx)$/, 
     plugins: [
         ['babel-plugin-storybook-csf-title', { toTitle: require('./your-to-title-function') }]
     ]
