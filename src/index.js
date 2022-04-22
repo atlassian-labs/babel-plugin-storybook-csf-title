@@ -2,12 +2,18 @@ const TITLE_KEY = 'title';
 
 const fixObjectDefaultExport = (path, t, title, ifTitleFound) => {
     if (path.node.declaration.properties) {
-        const titleProperty = path.node.declaration.properties.find(node =>
+        const newTitleNode = t.objectProperty(t.identifier(TITLE_KEY), t.stringLiteral(title))
+        const titlePropertyIndex = path.node.declaration.properties.findIndex(node =>
             node.key && node.key.name === TITLE_KEY
         );
-        if (titleProperty) {
+        if (titlePropertyIndex !== -1) {
             switch (ifTitleFound) {
                 case 'skip':
+                    return;
+                case 'transform':
+                    const newNode = t.cloneNode(path.node);
+                    newNode.declaration.properties.splice(titlePropertyIndex, 1, newTitleNode);
+                    path.replaceWith(newNode);
                     return;
                 default:
                     throw new Error(
@@ -17,7 +23,7 @@ const fixObjectDefaultExport = (path, t, title, ifTitleFound) => {
         }
         path.get('declaration').pushContainer(
             'properties', 
-            t.objectProperty(t.identifier(TITLE_KEY), t.stringLiteral(title))
+            newTitleNode
         );
     } else {
         throw new Error('Default export object does not have properties.');
