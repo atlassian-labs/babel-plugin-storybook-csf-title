@@ -162,7 +162,7 @@ tester({
             import React from 'react';
             import { Component } from './index';
             export default {
-              title: "bar"
+              title: "existingbar"
             };
             export const Default = () => <Component />;
           `
@@ -170,7 +170,7 @@ tester({
   ],
   pluginOptions: {
     title: 'bar',
-    toTitle: (state) => state.opts.title,
+    toTitle: (state) => state.title + state.opts.title,
     ifTitleFound: 'transform'
   },
   babelOptions: {

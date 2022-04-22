@@ -135,6 +135,7 @@ The plugin takes three options, `toTitle` (required), `ifTitleFound` (optional),
 
 - `ifTitleFound` is an optional string value that may either be set to:
   -  `'skip'` - skips adding a title if it has already been manually specified in the code
+  -  `'transform'` - replaces the existing title with the value from `toTitle`
   -  `undefined` (or any other value) - raise an error if processing a file that already defines a title
 
 - `renameDefaultExportsTo` is an optional string value that controls scenario 3 as described above. It is `undefined` by default.
