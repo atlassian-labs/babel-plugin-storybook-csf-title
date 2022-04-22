@@ -1,13 +1,16 @@
 const TITLE_KEY = 'title';
 
-const fixObjectDefaultExport = (path, t, title, ifTitleFound) => {
+const fixObjectDefaultExport = (path, t, title, ifTitleFound, titlePropertyIndex) => {
     if (path.node.declaration.properties) {
-        const titleProperty = path.node.declaration.properties.find(node =>
-            node.key && node.key.name === TITLE_KEY
-        );
-        if (titleProperty) {
+        const newTitleNode = t.objectProperty(t.identifier(TITLE_KEY), t.stringLiteral(title))
+        if (titlePropertyIndex !== -1) {
             switch (ifTitleFound) {
                 case 'skip':
+                    return;
+                case 'transform':
+                    const newNode = t.cloneNode(path.node);
+                    newNode.declaration.properties.splice(titlePropertyIndex, 1, newTitleNode);
+                    path.replaceWith(newNode);
                     return;
                 default:
                     throw new Error(
@@ -17,7 +20,7 @@ const fixObjectDefaultExport = (path, t, title, ifTitleFound) => {
         }
         path.get('declaration').pushContainer(
             'properties', 
-            t.objectProperty(t.identifier(TITLE_KEY), t.stringLiteral(title))
+            newTitleNode
         );
     } else {
         throw new Error('Default export object does not have properties.');
@@ -61,6 +64,21 @@ const plugin = babel => {
                     return;
                 }
                 state.defaultExportPath = path;
+                state.titleIndex = -1;
+                state.title = '';
+
+                const properties = path.node.declaration.properties;
+                if (properties) {
+                    const titlePropertyIndex = properties.findIndex(node =>
+                        node.key && node.key.name === TITLE_KEY
+                    );
+                    if (titlePropertyIndex !== -1) {
+                        if (properties[titlePropertyIndex].value.type === 'StringLiteral') {
+                            state.title = properties[titlePropertyIndex].value.value;
+                            state.titleIndex = titlePropertyIndex;
+                        }
+                    }
+                }
             },
             ExportNamedDeclaration: (path, state) => {
                 if (state.handled) {
@@ -93,7 +111,7 @@ const plugin = babel => {
 
                     if (state.defaultExportPath) {
                         if (state.defaultExportPath.node.declaration.type === 'ObjectExpression') {
-                            fixObjectDefaultExport(state.defaultExportPath, t, title, state.opts.ifTitleFound);
+                            fixObjectDefaultExport(state.defaultExportPath, t, title, state.opts.ifTitleFound, state.titleIndex);
                         } else {
                             if (renameDefaultExportsTo) {
                                 if (!state.namedDefaultExportPath) {

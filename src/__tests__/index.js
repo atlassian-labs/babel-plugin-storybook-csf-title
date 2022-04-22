@@ -144,3 +144,36 @@ tester({
     plugins: ["@babel/plugin-syntax-jsx"],
   }
 });
+
+tester({
+  plugin,
+  tests: [
+      {
+          title: "Default export object with title and ifTitleFound: transform",
+          code: outdent`
+            import React from 'react';
+            import { Component } from './index';
+            export default {
+              title: "existing"
+            };
+            export const Default = () => <Component />;
+          `,
+          output: outdent`
+            import React from 'react';
+            import { Component } from './index';
+            export default {
+              title: "existingbar"
+            };
+            export const Default = () => <Component />;
+          `
+      }
+  ],
+  pluginOptions: {
+    title: 'bar',
+    toTitle: (state) => state.title + state.opts.title,
+    ifTitleFound: 'transform'
+  },
+  babelOptions: {
+    plugins: ["@babel/plugin-syntax-jsx"],
+  }
+});
